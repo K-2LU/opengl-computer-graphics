@@ -27,7 +27,6 @@ vector<pair<int, int>> dda(pair<double, double> p1, pair<double, double> p2) {
     return ans;
 }
 
-
 vector<pair<int, int>> brasenham(pair<double, double> p1, pair<double, double> p2) {
     vector<pair<int, int>> ans;
 
