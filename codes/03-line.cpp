@@ -1,11 +1,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
-
 #include <bits/stdc++.h>
 
 using namespace std;
-
 
 vector<pair<int, int>> dda(pair<double, double> p1, pair<double, double> p2) {
     vector<pair<int, int>> ans;
@@ -79,7 +77,7 @@ void display()  {
     vector<pair<int, int>> points = dda(p1, p2);
 
     // draw stuff
-    glPointSize(2.0);
+    glPointSize(1.0);
     glBegin(GL_POINTS);
 
     for (auto point: points)    {
@@ -89,8 +87,6 @@ void display()  {
 
     glFlush();
 }
-
-
 
 void init() {
     glClearColor(0.0, 0.0, 0.0, 1.0);               // R G B
