@@ -50,25 +50,25 @@ bool cohenSutherland(double &x1, double &y1, double &x2, double &y2)    {
             break;
         }   else    {
             double x, y;
-            int temp = code1 ? code1 : code2;
+            int outsideCode = code1 ? code1 : code2;
             double slope = (x2-x1) != 0 ? (y2-y1) / (x2-x1) : 1e9;
 
-            if (temp & UP) {
+            if (outsideCode & UP) {
                 x = x1 + (y_max - y1) / slope;
                 y = y_max;
-            } else if (temp & BOTTOM) {
+            } else if (outsideCode & BOTTOM) {
                 x = x1 + (y_min - y1) / slope;
                 y = y_min;
-            } else if (temp & RIGHT) {
+            } else if (outsideCode & RIGHT) {
                 y = y1 + slope * (x_max - x1);
                 x = x_max;
-            }   else if (temp & LEFT) {
+            }   else if (outsideCode & LEFT) {
                 y = y1 + slope * (x_min - x1);
                 x = x_min;
             }
             
 
-            if (temp == code1)  {
+            if (outsideCode == code1)  {
                 x1 = x;
                 y1 = y;
                 code1 = regionCode(x1, y1);

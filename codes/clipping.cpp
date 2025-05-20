@@ -1,92 +1,145 @@
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <GL/glut.h>
-#include <bits/stdc++.h>
+#include <iostream>
 
-const int x_min = -100, y_min = -100;
-const int x_max = 100, y_max = 100;
+using namespace std;
 
-const int numLines = 7;
-double lines[numLines][4] = {
-    {-150, 50, 150, 50},   // Crosses horizontally
-    {-120, -80, 80, 130},  // Diagonal
-    {0, -150, 0, 150},     // Vertical through the center
-    {50, -50, 150, -150},  // Partially outside
-    {-180, 80, -120, 40},  // Fully outside
-    {-90, -90, 90, 90},    // Diagonal inside
-    {110, 110, 130, 130}   // Completely outside
-};
-double clippedLines[numLines][4];
+//window boundaries
+const int x_min = 200, y_min = 250;
+const int x_max = 650,  y_max = 650;
 
-enum codes {
-    INSIDE  = 0,    // 0000
-    LEFT    = 1,    // 0001
-    RIGHT   = 2,    // 0010
-    BOTTOM  = 4,    // 0100
-    UP      = 8     // 1000
-};
+//viewport boundaries
+const int vx_min = 20, vy_min = 20;
+const int vx_max = 220,  vy_max = 120;
 
-int regionCode(double x, double y)  {
+const double sx = (vx_max - vx_min * 1.0)  / (x_max - x_min);
+const double sy = (vy_max - vy_min * 1.0) / (y_max - y_min);
+
+const int INSIDE = 0;
+const int LEFT   = 1;
+const int RIGHT  = 2;
+const int BOTTOM = 4;
+const int TOP    = 8;
+
+
+
+int computeCode(double x, double y)
+{
     int code = INSIDE;
-
-    if (x < x_min)      code |= LEFT;
-    if (x > x_max)      code |= RIGHT;
-    if (y < y_min)      code |= BOTTOM;
-    if (y > y_max)      code |= UP;
-
+    if (x < x_min)       code |= LEFT;
+    if (x > x_max)       code |= RIGHT;
+    if (y < y_min)       code |= BOTTOM;
+    if (y > y_max)       code |= TOP;
     return code;
 }
 
-bool cohenSutherland(double &x1, double &y1, double &x2, double &y2)    {
-    int code1 = regionCode(x1, y1);
-    int code2 = regionCode(x2, y2);
-    bool ac = false;
 
-    while (true)    {
-        if (!code1 && !code2)   {
-            ac = true;
+bool CohenSutherlandClip(double &x1, double &y1, double &x2, double &y2)
+{
+    int code1 = computeCode(x1, y1);
+    int code2 = computeCode(x2, y2);
+    bool accept = false;
+
+    while (true)
+    {
+        if (code1 == 0 && code2 == 0)
+        {
+            accept = true;
             break;
-        }   else if (code1 & code2)   {
+        }
+        else if (code1 & code2)
+        {
             break;
-        }   else    {
+        }
+        else
+        {
             double x, y;
-            int temp = code1 ? code1 : code2;
-            double slope = (x2-x1) != 0 ? (y2-y1) / (x2-x1) : 1e9;
+            int codeOut = code1 ? code1 : code2;
+            double slope = (x2 - x1) != 0 ? (y2 - y1) / (x2 - x1) : 1e9;
 
-            if (temp & UP) {
+            if (codeOut & TOP)
+            {
                 x = x1 + (y_max - y1) / slope;
                 y = y_max;
-            } else if (temp & BOTTOM) {
+            }
+            else if (codeOut & BOTTOM)
+            {
                 x = x1 + (y_min - y1) / slope;
                 y = y_min;
-            } else if (temp & RIGHT) {
+            }
+            else if (codeOut & RIGHT)
+            {
                 y = y1 + slope * (x_max - x1);
                 x = x_max;
-            }   else if (temp & LEFT) {
+            }
+            else if (codeOut & LEFT)
+            {
                 y = y1 + slope * (x_min - x1);
                 x = x_min;
             }
-            
 
-            if (temp == code1)  {
+            if (codeOut == code1)
+            {
                 x1 = x;
                 y1 = y;
-                code1 = regionCode(x1, y1);
-            }   else    {
+                code1 = computeCode(x1, y1);
+            }
+            else
+            {
                 x2 = x;
                 y2 = y;
-                code2 = regionCode(x2, y2);
+                code2 = computeCode(x2, y2);
             }
         }
     }
-    return ac;
+    return accept;
 }
 
-void display()  {
-    glClear(GL_COLOR_BUFFER_BIT);                   // clear any previous
-    glLoadIdentity();
 
-    glColor3f(0.0, 0.0, 0.0);
+const int numLines = 11;
+double orig_lines[numLines][4] =
+{
+    {100, 420, 320, 200},
+    {320, 200, 600, 150},
+    {600, 150, 825, 400},
+    {825, 400, 675, 750},
+    {675, 750, 675, 720},
+    {675, 720, 600, 500},
+    {600, 500, 600, 850},
+    {600, 850, 400, 675},
+    {400, 675, 325, 650},
+    {325, 650, 250, 450},
+    {250, 450, 100, 420}
+};
+
+double clip_lines[numLines][4];
+
+
+
+pair<double, double> windowToViewportMapping(double x, double y)
+{
+    double vx = sx * (x - x_min) + vx_min;
+    double vy = sy * (y - y_min) + vy_min;
+
+    return {vx, vy};
+}
+
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+
+//    cout << "sx: " << sx << " sy: " << sy << endl;
+
+    // Draw the viewport
+    glColor3f(0.0, 1.0, 0.0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(vx_min, vy_min);
+    glVertex2f(vx_max, vy_min);
+    glVertex2f(vx_max, vy_max);
+    glVertex2f(vx_min, vy_max);
+    glEnd();
+
+    // Draw the window (yellow)
+    glColor3f(1.0, 1.0, 0.0);
     glBegin(GL_LINE_LOOP);
     glVertex2f(x_min, y_min);
     glVertex2f(x_max, y_min);
@@ -94,29 +147,42 @@ void display()  {
     glVertex2f(x_min, y_max);
     glEnd();
 
-    // original lines
+    // Draw the original lines (red)
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINES);
-    for (int i = 0; i < numLines; i++)  {
-        glVertex2f(lines[i][0], lines[i][1]);
-        glVertex2f(lines[i][2], lines[i][3]);
+    for (int i = 0; i < numLines; i++)
+    {
+        glVertex2f(orig_lines[i][0], orig_lines[i][1]);
+        glVertex2f(orig_lines[i][2], orig_lines[i][3]);
     }
     glEnd();
 
-    // cohen sutherland
-    glColor3f(0.0, 0.0, 1.0);
+
+
+    glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINES);
-    for (int i = 0; i < numLines; i++)  {
-        clippedLines[i][0] = lines[i][0];
-        clippedLines[i][1] = lines[i][1];
-        clippedLines[i][2] = lines[i][2];
-        clippedLines[i][3] = lines[i][3];
+    for (int i = 0; i < numLines; i++)
+    {
+        clip_lines[i][0] = orig_lines[i][0];
+        clip_lines[i][1] = orig_lines[i][1];
+        clip_lines[i][2] = orig_lines[i][2];
+        clip_lines[i][3] = orig_lines[i][3];
 
-        bool visible = cohenSutherland(clippedLines[i][0], clippedLines[i][1], clippedLines[i][2], clippedLines[i][3]);
+        bool visible = CohenSutherlandClip(clip_lines[i][0], clip_lines[i][1], clip_lines[i][2], clip_lines[i][3]);
+        if (visible)
+        {
+            pair<double, double> p1 = windowToViewportMapping(clip_lines[i][0], clip_lines[i][1]);
+            pair<double, double> p2 = windowToViewportMapping(clip_lines[i][2], clip_lines[i][3]);
+            //draw the clipped lines in window
+            glColor3f(1.0, 0.0, 1.0);
+            glVertex2f(clip_lines[i][0], clip_lines[i][1]);
+            glVertex2f(clip_lines[i][2], clip_lines[i][3]);
 
-        if (visible)    {
-            glVertex2f(clippedLines[i][0], clippedLines[i][1]);
-            glVertex2f(clippedLines[i][2], clippedLines[i][3]);
+            cout << p1.first << " " << p1.second << endl;
+            cout << p2.first << " " << p2.second << endl;
+            //draw the clipped lines in viewport
+            glVertex2f(p1.first, p1.second);
+            glVertex2f(p2.first, p2.second);
         }
     }
     glEnd();
@@ -124,29 +190,24 @@ void display()  {
     glFlush();
 }
 
-void init() {
-    glClearColor(1.0, 1.0, 1.0, 1.0);               // R G B
-}
-
-void reshape(int w, int h)  {
-    glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-    glLoadIdentity();
+void init()
+{
+    glClearColor(0.0, 0.0, 0.0, 0.0);
     glMatrixMode(GL_PROJECTION);
-    gluOrtho2D(-200, 200, -200, 200);
-    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluOrtho2D(0, 1000, 0, 1000);
 }
 
-int main(int argc, char **argv) {
-    
+int main(int argc, char** argv)
+{
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGB);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(500, 500);
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("Cohen-Sutherland Line Clipping");
 
-    glutInitWindowPosition(100, 100);               // specify window position
-    glutInitWindowSize(500, 500);                   // width and height of window in px
-
-    glutCreateWindow("Demo");                       // create the window
-    glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
     init();
+    glutDisplayFunc(display);
     glutMainLoop();
+    return 0;
 }
