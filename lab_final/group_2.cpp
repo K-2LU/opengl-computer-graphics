@@ -19,7 +19,6 @@ void drawCircle(float radius) {
     glEnd();
 }
 
-
 void display(void)  {
     glClear(GL_COLOR_BUFFER_BIT);
 
