@@ -9,25 +9,17 @@ void display(void)
 */
     glColor3f (1.0, 1.0, 1.0);
 
-
-
-
         glBegin(GL_TRIANGLES); //Begin quadrilateral coordinates
-
 
         //Trapezoid
         glVertex3f(0.05f, 0.05f, 0.0f);
         glVertex3f(0.35f, 0.05f, 0.0f);
         glVertex3f(0.40f, 0.35f, 0.0f);
 
-
-
-
         glEnd(); //End quadrilateral coordinates
 
 
         glBegin(GL_TRIANGLES); //Begin triangle coordinates
-
 
         //Pentagon
         glColor3f (0.0, 1.0, 0.0);
