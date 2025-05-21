@@ -2,7 +2,12 @@
 ## Group 0: Scaling on Translation
 You have a rectangle, it move left and right. if it moves to te right, it expands by a scale of something(let's say 1.25 on both axis), if it moves to the left, it shrinks by a scale of something(same).
 ### Solution:
-<a href='/lab_final/group_0.cpp'> Link to Solution </a>
+<a href='/lab_final/group_0.cpp'> Link to Solution </a>   
+**Key bindings:**
+| Key | Action |
+|---|---|
+| ← ARROW LEFT | move rectangle to the left and scale down |
+| → ARROW RIGHT | move rectangle to the left and scale up |
 
 ## Group 1: Make a working clock
 You are to make a clock that has three arms, for seconds, minutes and hours. The arms should be fully functional. You can manipulate the second's hand by a keypress.
