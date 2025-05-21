@@ -18,19 +18,19 @@ You have places a circle before a mirror. Like real life the reflection of it sh
 |---|---|
 | a | rotate mirror to the  left |
 | d | rotate mirror to the right |
-|  <-- ARROW LEFT | move mirror to the left |
-|  --> ARROW RIGHT | move mirror to the right |
+| ← ARROW LEFT | move mirror to the left |
+| → ARROW RIGHT | move mirror to the right |
 
 
 ## Group 3: Moving triangle
 You have a triangle, with three points at *(-3, 0)*, *(3, 0)* and *(0, 5)*. The triangle is initially facing upwards. You have to be able to move the triangle *UP, DOWN, LEFT* and *RIGHT* but before each movement, if the triangle is not facing the direction, it has to rotate to face that direction and on subsequent moves it is allowed to move in that direction.    
 For example, if it is facing UP and is commanded to move LEFT, rotate it to face LEFT first, then if commanded to move LEFT again, then it can move to LEFT. This goes for all directions.
 ### Solution:
-<a href='/lab_final/group_3.cpp'> Link to Solution </a>
+<a href='/lab_final/group_3.cpp'> Link to Solution </a>    
 **Key bindings:**
 | Key | Action |
 |---|---|
 | ↑ ARROW UP | move and face triangle upwards |
 | ↓ ARROW DOWN | move and face triangle downwards |
-| <-- ARROW LEFT | move and face triangle to the left |
-| --> ARROW RIGHT | move and face triangle to the right |
+| ← ARROW LEFT | move and face triangle to the left |
+| → ARROW RIGHT | move and face triangle to the right |
