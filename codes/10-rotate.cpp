@@ -7,6 +7,8 @@ using namespace std;
 float _angle = 30.0f;
 float _cameraAngle = 0.0f;
 float _angle2 = 40.0f;
+float px = 0.0;
+float py = 0.0;
 
 // Initializes 3D rendering
 void initRendering()
@@ -36,7 +38,7 @@ void drawScene()
     glTranslatef(0.0f, 0.0f, -5.0f);
 
     glPushMatrix();
-    glTranslatef(0.0f, -1.0f, 0.0f);
+    glTranslatef(px, py, 0.0f);
     glRotatef(_angle, 0.0f, 0.0f, -1.0f);
 
     glBegin(GL_QUADS);
@@ -85,18 +87,16 @@ void spinright()
     glRotatef(_angle, 0.0, 0.0, 1.0);
 }
 
-void spinleft1()
-{
-    _angle2 += 2.0f;
+void moveleft1()    {
+    px += 0.2;
     glutPostRedisplay();
-    glRotatef(_angle, 0.0, 0.0, 1.0);
+    // glTranslatef(px, py, 0.0);
 }
 
-void spinright1()
-{
-    _angle2 -= 2.0f;
+void moveright1()   {
+    px -= 0.2;
     glutPostRedisplay();
-    glRotatef(_angle, 0.0, 0.0, 1.0);
+    // glTranslatef(px, py, 0.0);
 }
 
 // Called when a key is pressed
@@ -111,10 +111,10 @@ void handleKeypress(unsigned char key, int x, int y)
         spinright();
         break;
     case 'q':
-        spinleft1();
+        moveleft1();
         break;
     case 'e':
-        spinright1();
+        moveright1();
         break;
     case 27: // Escape key
         exit(0);

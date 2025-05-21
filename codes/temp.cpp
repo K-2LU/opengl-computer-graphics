@@ -1,10 +1,9 @@
-
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <math.h>
 
 static GLfloat spin = 0.0;
-static float tx = 10.0;
+static float tx = 0.0;
 static float ty = 0.0;
 static float auto_tx = 200.0;
 static float auto_ty = 0.0;
@@ -14,29 +13,46 @@ bool dir = 1;
 const int window_w = 500;
 const int window_h = 500;
 
+void drawCircle(float radius) {
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < 360; i++) {
+        float theta = i * M_PI / 180.0f;
+        glVertex2f(radius * cos(theta), radius * sin(theta));
+    }
+    glEnd();
+}
+
+
 void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
- GLfloat spin = 0.0;
-static float tx = 10.0;
-static float ty = 0.0;
-static float auto_tx = 200.0;
-static float auto_ty = 0.0;
 
+    // Controlled circle (keyboard & mouse)
     glPushMatrix();
-    glColor3f(1.0, 1.0, 1.0);
-    glTranslatef(tx, ty, 0);
-    glRectf(-25.0, -25.0, 25.0, 25.0);
+        glTranslatef(tx, ty, 0);
+        glRotatef(spin, 0.0, 0.0, 1.0);
+        glColor3f(1.0, 1.0, 1.0);
+        drawCircle(50.0f);
+    glPopMatrix();
+
+    // Auto-moving circle
+    glPushMatrix();
+        glTranslatef(auto_tx, auto_ty, 0);
+        glColor3f(0.0, 1.0, 0.0);  // green for clarity
+        drawCircle(50.0f);
     glPopMatrix();
 
     glPushMatrix();
-    glColor3f(1.0, 1.0, 1.0);
-    glTranslatef(auto_tx, auto_ty, 0);
-    glRectf(-25.0, -25.0, 25.0, 25.0);
-    glPopMatrix();
+    glColor3f(1.0, 1.0, 0.0); // yellow line
+    glBegin(GL_LINES);
+        glVertex2f((auto_tx - tx)/2, (auto_ty - ty - 100)/2);
+        glVertex2f((auto_tx - tx)/2, (auto_ty-ty+100)/2);
+    glEnd();
+glPopMatrix();
 
     glFlush();
 }
+
 
 void spinDisplay_left(void)
 {
@@ -106,11 +122,11 @@ void spe_key(int key, int x, int y)
 {
     switch (key) {
         case GLUT_KEY_LEFT:
-            tx -= 5;
+            auto_tx -= 5;
             glutPostRedisplay();
             break;
         case GLUT_KEY_RIGHT:
-            tx += 5;
+            auto_tx += 5;
             glutPostRedisplay();
             break;
         default:
@@ -135,8 +151,10 @@ void my_mouse(int button, int state, int x, int y)
     }
 }
 
-int main(int argc, char **argv) {
-    
+
+int main(int argc, char **argv)
+{
+    // Initialize GLUT
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
     glutInitWindowSize(window_w, window_h);
@@ -147,7 +165,7 @@ int main(int argc, char **argv) {
     glutDisplayFunc(display);
     glutKeyboardFunc(my_keyboard);
     glutSpecialFunc(spe_key);
-    glutIdleFunc(auto_move);
+    // glutIdleFunc(auto_move);
 
     glutMainLoop();
     return 0;
