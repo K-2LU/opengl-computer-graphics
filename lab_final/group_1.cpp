@@ -1,158 +1,112 @@
+// By Rubayet Sadman Sami - 2019331063
+#include <GL/gl.h>
 #include <GL/glut.h>
-#include <math.h>
+#include <cmath>
 
-#define MAX_BULLETS 100
+#define M_PI 3.14159265358979323846
 
-float tankX = 50, tankY = 50;
-float angle = 0;
-float speed = 1.0;
+// Time variables
+int hours = 0;
+int minutes = 0;
+int seconds = 0;
 
-struct Bullet
+void drawCircle(float xc, float yc, float r)
 {
-    float x, y, angle;
-    int active;
-};
-
-Bullet bullets[MAX_BULLETS];
-int bulletCount = 0;
-
-int isInsideBox(float x, float y)
-{
-    return (x >= 5 && x <= 95 && y >= 5 && y <= 95);
-}
-
-void drawTank()
-{
-    float w = 6, h = 10;
-
-    glPushMatrix();
-    glTranslatef(tankX, tankY, 0);
-    glRotatef(angle, 0, 0, 1);
+    float x = 0, y = r;
+    float d = 1 - r;
 
     glColor3f(1.0, 1.0, 1.0);
-    glBegin(GL_QUADS);
-    glVertex2f(-w, -h);
-    glVertex2f(w, -h);
-    glVertex2f(w, h);
-    glVertex2f(-w, h);
-    glEnd();
+    glBegin(GL_POINTS);
 
-    // Barrel
-    glColor3f(1.0, 0.0, 0.0);
+    while (x <= y)
+    {
+        glVertex2d(x + xc, y + yc);
+        glVertex2d(y + xc, x + yc);
+        glVertex2d(-x + xc, y + yc);
+        glVertex2d(-y + xc, x + yc);
+        glVertex2d(x + xc, -y + yc);
+        glVertex2d(y + xc, -x + yc);
+        glVertex2d(-x + xc, -y + yc);
+        glVertex2d(-y + xc, -x + yc);
+
+        if (d < 0)
+        {
+            d += 2 * x + 3;
+        }
+        else
+        {
+            d += 2 * (x - y) + 5;
+            y--;
+        }
+        x++;
+    }
+    glEnd();
+}
+
+void drawHand(float angle, float length, float width)
+{
+    glColor3f(1.0, 1.0, 1.0);
+    glLineWidth(width);
     glBegin(GL_LINES);
     glVertex2f(0, 0);
-    glVertex2f(0, h + 5);
+    glVertex2f(length * sin(angle), length * cos(angle));
     glEnd();
-
-    glPopMatrix();
 }
 
-void drawBullets()
+void updateHandAngles()
 {
-    int i;
-    glColor3f(1.0, 1.0, 0.0);
-    for (i = 0; i < bulletCount; i++)
-    {
-        if (bullets[i].active)
-        {
-            glBegin(GL_POINTS);
-            glVertex2f(bullets[i].x, bullets[i].y);
-            glEnd();
-        }
-    }
-}
+    // Convert time to angles
+    // Hours: 360/12 = 30 degrees per hour
+    // Minutes: 360/60 = 6 degrees per minute
+    // Seconds: 360/60 = 6 degrees per second
+    float hourAngle = (hours % 12) * 30 * M_PI / 180;
+    float minuteAngle = minutes * 6 * M_PI / 180;
+    float secondAngle = seconds * 6 * M_PI / 180;
 
-void updateBullets()
-{
-    int i;
-    float speed = 2.0;
-    for (i = 0; i < bulletCount; i++)
-    {
-        if (bullets[i].active)
-        {
-            float rad = -bullets[i].angle * 3.14159 / 180; // Fixed: NEGATE angle
-            bullets[i].x += speed * sin(rad);
-            bullets[i].y += speed * cos(rad);
-
-            if (!isInsideBox(bullets[i].x, bullets[i].y))
-            {
-                bullets[i].active = 0;
-            }
-        }
-    }
+    // Draw hands
+    drawHand(secondAngle, 35, 1.0); // Second hand
+    drawHand(minuteAngle, 30, 2.0); // Minute hand
+    drawHand(hourAngle, 25, 3.0);   // Hour hand
 }
 
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Draw bounding box
-    glColor3f(1.0, 1.0, 1.0);
-    glBegin(GL_LINE_LOOP);
-    glVertex2i(5, 5);
-    glVertex2i(95, 5);
-    glVertex2i(95, 95);
-    glVertex2i(5, 95);
-    glEnd();
+    // Draw clock face
+    drawCircle(0, 0, 40);
 
-    drawTank();
-    drawBullets();
+    // Update and draw hands
+    updateHandAngles();
 
     glFlush();
 }
 
-void timer(int value)
-{
-    updateBullets();
-    glutPostRedisplay();
-    glutTimerFunc(16, timer, 0);
-}
-
-void specialKeys(int key, int x, int y)
-{
-    float rad = -angle * 3.14159 / 180;
-    float nextX = tankX;
-    float nextY = tankY;
-
-    if (key == GLUT_KEY_UP)
-    {
-        nextX += speed * sin(rad);
-        nextY += speed * cos(rad);
-    }
-    else if (key == GLUT_KEY_DOWN)
-    {
-        nextX -= speed * sin(rad);
-        nextY -= speed * cos(rad);
-    }
-    else if (key == GLUT_KEY_LEFT)
-    {
-        angle += 5;
-    }
-    else if (key == GLUT_KEY_RIGHT)
-    {
-        angle -= 5;
-    }
-
-    if (isInsideBox(nextX, nextY))
-    {
-        tankX = nextX;
-        tankY = nextY;
-    }
-
-    glutPostRedisplay();
-}
-
 void normalKeys(unsigned char key, int x, int y)
 {
-    if (key == ' ' && bulletCount < MAX_BULLETS)
+    if (key == ' ')
     {
-        float rad = -angle * 3.14159 / 180; // Fixed: NEGATE angle
+        // Move time forward by 5 seconds
+        seconds += 5;
 
-        bullets[bulletCount].x = tankX + (10 + 5) * sin(rad);
-        bullets[bulletCount].y = tankY + (10 + 5) * cos(rad);
-        bullets[bulletCount].angle = angle;
-        bullets[bulletCount].active = 1;
-        bulletCount++;
+        // Handle minute overflow
+        if (seconds >= 60)
+        {
+            minutes += seconds / 60;
+            seconds = seconds % 60;
+        }
+
+        // Handle hour overflow
+        if (minutes >= 60)
+        {
+            hours += minutes / 60;
+            minutes = minutes % 60;
+        }
+
+        // Handle 24-hour overflow
+        hours = hours % 24;
+
+        glutPostRedisplay();
     }
 }
 
@@ -160,9 +114,8 @@ void init()
 {
     glClearColor(0, 0, 0, 0);
     glMatrixMode(GL_PROJECTION);
-    // glLoadIdentity();
-    glOrtho(0, 100, 0, 100, -1, 1);
-    glPointSize(4);
+    glLoadIdentity();
+    glOrtho(-50.0, 50.0, -50.0, 50.0, -1.0, 1.0);
 }
 
 int main(int argc, char **argv)
@@ -170,14 +123,12 @@ int main(int argc, char **argv)
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
     glutInitWindowSize(600, 600);
-    glutCreateWindow("Simple Tank Game");
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("Simple Clock");
 
     init();
     glutDisplayFunc(display);
-    glutSpecialFunc(specialKeys);
     glutKeyboardFunc(normalKeys);
-    glutTimerFunc(0, timer, 0);
-
     glutMainLoop();
     return 0;
 }
