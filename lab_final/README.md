@@ -7,7 +7,7 @@ You have a rectangle, it move left and right. if it moves to te right, it expand
 | Key | Action |
 |---|---|
 | ← ARROW LEFT | move rectangle to the left and scale down |
-| → ARROW RIGHT | move rectangle to the left and scale up |
+| → ARROW RIGHT | move rectangle to the right and scale up |
 
 ## Group 1: Make a working clock
 You are to make a clock that has three arms, for seconds, minutes and hours. The arms should be fully functional. You can manipulate the second's hand by a keypress.

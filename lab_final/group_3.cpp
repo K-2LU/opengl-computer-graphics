@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-static GLfloat spin = 0.0;
-static float tx = 0.0;
-static float ty = 0.0;
+static GLfloat      spin    =   0.0;
+static float        tx      =   0.0;
+static float        ty      =   0.0;
 
 enum Orientation {
     UP,
